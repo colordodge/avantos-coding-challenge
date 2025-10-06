@@ -1,10 +1,27 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import reactLogo from './assets/react.svg'
 import viteLogo from '/vite.svg'
 import './App.css'
 
+const API_URL =  'http://localhost:3000/api/v1/myapp/actions/blueprints/mybp/graph/'
+
 function App() {
   const [count, setCount] = useState(0)
+
+  async function fetchData() {
+    try {
+      const response = await fetch(API_URL)
+      const data = await response.json()
+      console.log("data = ", data)
+      return data
+    } catch (error) {
+      console.error("error fetching data: ", error)
+    }
+  }
+
+  useEffect(() => {
+    fetchData()
+  }, [])
 
   return (
     <>
