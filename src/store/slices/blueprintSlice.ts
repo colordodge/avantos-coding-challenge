@@ -1,6 +1,7 @@
 import { createSlice, createAsyncThunk, type PayloadAction } from '@reduxjs/toolkit'
-import type {  BlueprintData } from '../types'
+import type {  BlueprintData, Node, Edge } from '../types'
 import type { RootState } from '../index'
+import { Position } from '@xyflow/react'
 
 export interface BlueprintState {
     data: BlueprintData | null
@@ -37,6 +38,38 @@ export const fetchBlueprintData = createAsyncThunk(
 export const selectBlueprintData = (state: RootState) => state.blueprint.data
 export const selectBlueprintLoading = (state: RootState) => state.blueprint.loading
 export const selectBlueprintError = (state: RootState) => state.blueprint.error
+
+export const selectBlueprintNodes = (state: RootState) => {
+    const edges = state.blueprint.data?.edges || []
+    const nodes = state.blueprint.data?.nodes.map((node) => {
+        const hasSourceConnection = edges.some((edge) => edge.target === node.id)
+        const hasTargetConnection = edges.some((edge) => edge.source === node.id)
+        return {
+            id: node.id,
+            type: 'custom',
+            position: {x: node.position.x, y: node.position.y},
+            data: { 
+                label: node.data.name,
+                hasSourceConnection,
+                hasTargetConnection
+            },
+            sourcePosition: Position.Right,
+            targetPosition: Position.Left
+        }
+    })
+    return nodes || []
+}
+
+export const selectBlueprintEdges = (state: RootState) => {
+    const edges = state.blueprint.data?.edges.map((edge) => {
+        return {
+            id: `${edge.source}-${edge.target}`,
+            source: edge.source,
+            target: edge.target
+        }
+    })
+    return edges || []
+}
 
 const blueprintSlice = createSlice({
     name: 'blueprint',

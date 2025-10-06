@@ -1,0 +1,7 @@
+.customNode {
+    padding: 10px 20px;
+    border-radius: 3px;
+    background: white;
+    border: 1px solid #ddd;
+    font-size: 12px;
+}

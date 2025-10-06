@@ -1,10 +1,12 @@
-import './App.css'
 import { BlueprintGraph } from './components/BlueprintGraph'
+import styles from './App.module.css'
 
 function App() {
   return (
     <>
-      <BlueprintGraph />
+      <div className={styles.app}>
+        <BlueprintGraph />
+      </div>
     </>
   )
 }
