@@ -19,7 +19,7 @@ export function BlueprintGraph() {
 
     useEffect(() => {
         dispatch(fetchBlueprintData())
-    }, [dispatch])
+    }, [dispatch])  
 
     
     return (

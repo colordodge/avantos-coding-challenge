@@ -3,6 +3,11 @@ import styles from './CustomNode.module.css'
 import ArticleIcon from '@mui/icons-material/Article';
 
 export function CustomNode({ data }: { data: { label: string; hasSourceConnection: boolean; hasTargetConnection: boolean } }) {
+
+    const onClick = () => {
+        console.log('clicked')
+    }
+
     return (
         <>
             <Handle 
@@ -10,7 +15,7 @@ export function CustomNode({ data }: { data: { label: string; hasSourceConnectio
                 position={Position.Left}
                 style={{ opacity: data.hasSourceConnection ? 1 : 0 }}
             />
-            <div className={styles.customNode}>
+            <div className={styles.customNode} onClick={onClick}>
                 <ArticleIcon className={styles.nodeIcon} />
                 {data.label}
                 </div>
