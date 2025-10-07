@@ -11,7 +11,7 @@ function getPropertyKeys(form: Form | undefined | null): string[] {
     return Object.keys(form.field_schema.properties)
 }
 
-export function PrefillMappingView() {
+export function PrefillMappingView({ handleFieldClick }: { handleFieldClick: (field: string) => void }) {
 
     const selectedForm = useSelector(selectSelectedForm)
     const propertyKeys = getPropertyKeys(selectedForm)
@@ -20,10 +20,9 @@ export function PrefillMappingView() {
 
     const properties = propertyKeys.map((key) => {
         return (
-            <div key={key}>{key}</div>
+            <div key={key} className={styles.property} onClick={() => handleFieldClick(key)}>{key}</div>
         )
     })
-
     
     return (
         <div className={styles.prefillMappingView}>

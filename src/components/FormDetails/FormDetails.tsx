@@ -8,11 +8,17 @@ type FormMode = 'view' | 'edit'
 export function FormDetails() {
 
     const [formMode, setFormMode] = useState<FormMode>('view')
+    const [selectedField, setSelectedField] = useState<string | null>(null)
 
+    const handleFieldClick = (field: string) => {
+        setFormMode('edit')
+        setSelectedField(field)
+    }
+    
     return (
         <div className={styles.formDetails}>
            { formMode === 'view' ? (
-            <PrefillMappingView />
+            <PrefillMappingView handleFieldClick={handleFieldClick} />
            ) : (
             <PrefillMappingEditor />
            )
