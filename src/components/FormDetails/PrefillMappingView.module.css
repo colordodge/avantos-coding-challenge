@@ -1,0 +1,11 @@
+.prefillMappingView {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.properties {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}

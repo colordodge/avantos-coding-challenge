@@ -81,6 +81,15 @@ export const selectBlueprintEdges = createSelector(
     }
 )
 
+export const selectSelectedForm = createSelector(
+    [selectBlueprintData, selectSelectedNode],
+    (data: BlueprintData | null, selectedNode: Node | null) => {
+        const selectedFormId = selectedNode?.data.component_id
+        const selectedForm = data?.forms.find((form) => form.id === selectedFormId)
+        return selectedForm
+    }
+)
+
 const blueprintSlice = createSlice({
     name: 'blueprint',
     initialState,
