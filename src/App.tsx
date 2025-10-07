@@ -1,4 +1,4 @@
-import { BlueprintGraph } from './components/BlueprintGraph'
+import { BlueprintGraph } from './components/DAG/BlueprintGraph'
 import styles from './App.module.css'
 
 function App() {

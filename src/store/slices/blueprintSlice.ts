@@ -5,12 +5,14 @@ import { Position } from '@xyflow/react'
 
 export interface BlueprintState {
     data: BlueprintData | null
+    selectedNode: Node | null
     loading: boolean
     error: string | null
 }
 
 const initialState: BlueprintState = {
     data: null,
+    selectedNode: null,
     loading: false,
     error: null
 }
@@ -38,6 +40,8 @@ export const fetchBlueprintData = createAsyncThunk(
 export const selectBlueprintData = (state: RootState) => state.blueprint.data
 export const selectBlueprintLoading = (state: RootState) => state.blueprint.loading
 export const selectBlueprintError = (state: RootState) => state.blueprint.error
+export const selectSelectedNode = (state: RootState) => state.blueprint.selectedNode
+
 
 export const selectBlueprintNodes = (state: RootState) => {
     const edges = state.blueprint.data?.edges || []
@@ -49,6 +53,7 @@ export const selectBlueprintNodes = (state: RootState) => {
             type: 'custom',
             position: {x: node.position.x, y: node.position.y},
             data: { 
+                id: node.id,
                 label: node.data.name,
                 hasSourceConnection,
                 hasTargetConnection
@@ -80,6 +85,9 @@ const blueprintSlice = createSlice({
         },
         clearData: (state) => {
             state.data = null
+        },
+        setSelectedNode: (state, action: PayloadAction<Node | null>) => {
+            state.selectedNode = action.payload
         }
     },
     extraReducers: (builder) => {
@@ -100,5 +108,5 @@ const blueprintSlice = createSlice({
     }
 })
 
-export const {clearError, clearData} = blueprintSlice.actions
+export const {clearError, clearData, setSelectedNode} = blueprintSlice.actions
 export default blueprintSlice.reducer

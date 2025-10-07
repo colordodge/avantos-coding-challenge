@@ -1,12 +1,19 @@
 import { Handle, Position } from '@xyflow/react'
 import styles from './CustomNode.module.css'
 import ArticleIcon from '@mui/icons-material/Article';
+import { selectSelectedNode } from '../../store/slices/blueprintSlice';
+import { useSelector } from 'react-redux';
 
-export function CustomNode({ data }: { data: { label: string; hasSourceConnection: boolean; hasTargetConnection: boolean } }) {
+export function CustomNode({ data }: { 
+    data: { 
+        id: string
+        label: string
+        hasSourceConnection: boolean
+        hasTargetConnection: boolean 
+    } }) {
 
-    const onClick = () => {
-        console.log('clicked')
-    }
+    const selectedNode = useSelector(selectSelectedNode)
+    const isSelected = selectedNode?.id === data.id
 
     return (
         <>
@@ -15,7 +22,7 @@ export function CustomNode({ data }: { data: { label: string; hasSourceConnectio
                 position={Position.Left}
                 style={{ opacity: data.hasSourceConnection ? 1 : 0 }}
             />
-            <div className={styles.customNode} onClick={onClick}>
+            <div className={`${styles.customNode} ${isSelected ? styles.selected : ''}`} >
                 <ArticleIcon className={styles.nodeIcon} />
                 {data.label}
                 </div>
