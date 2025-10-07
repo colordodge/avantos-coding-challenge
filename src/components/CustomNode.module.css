@@ -1,7 +1,16 @@
 .customNode {
-    padding: 10px 20px;
+    padding: 5px 10px 5px 5px;
+    display: flex;
+    align-items: center;
+    gap: 5px;
     border-radius: 3px;
     background: white;
-    border: 1px solid #ddd;
+    border: 1px solid #a0a0a0;
     font-size: 12px;
+    border-radius: 5px;
+    font-weight: 500;
+}
+
+.nodeIcon {
+    color: rgb(93, 82, 206);
 }
