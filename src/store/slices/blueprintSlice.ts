@@ -1,5 +1,5 @@
 import { createSlice, createAsyncThunk, type PayloadAction, createSelector } from '@reduxjs/toolkit'
-import type {  BlueprintData, Node, Edge } from '../types'
+import type {  BlueprintData, Node } from '../types'
 import type { RootState } from '../index'
 import { Position } from '@xyflow/react'
 
@@ -41,7 +41,6 @@ export const selectBlueprintData = (state: RootState) => state.blueprint.data
 export const selectBlueprintLoading = (state: RootState) => state.blueprint.loading
 export const selectBlueprintError = (state: RootState) => state.blueprint.error
 export const selectSelectedNode = (state: RootState) => state.blueprint.selectedNode
-
 
 export const selectBlueprintNodes = createSelector(
     [selectBlueprintData],
