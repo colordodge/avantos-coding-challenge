@@ -1,4 +1,4 @@
-import { createSlice, createAsyncThunk, type PayloadAction } from '@reduxjs/toolkit'
+import { createSlice, createAsyncThunk, type PayloadAction, createSelector } from '@reduxjs/toolkit'
 import type {  BlueprintData, Node, Edge } from '../types'
 import type { RootState } from '../index'
 import { Position } from '@xyflow/react'
@@ -43,38 +43,44 @@ export const selectBlueprintError = (state: RootState) => state.blueprint.error
 export const selectSelectedNode = (state: RootState) => state.blueprint.selectedNode
 
 
-export const selectBlueprintNodes = (state: RootState) => {
-    const edges = state.blueprint.data?.edges || []
-    const nodes = state.blueprint.data?.nodes.map((node) => {
-        const hasSourceConnection = edges.some((edge) => edge.target === node.id)
-        const hasTargetConnection = edges.some((edge) => edge.source === node.id)
-        return {
-            id: node.id,
-            type: 'custom',
-            position: {x: node.position.x, y: node.position.y},
-            data: { 
+export const selectBlueprintNodes = createSelector(
+    [selectBlueprintData],
+    (data: BlueprintData | null) => {
+        const edges = data?.edges || []
+        const nodes = data?.nodes.map((node) => {
+            const hasSourceConnection = edges.some((edge) => edge.target === node.id)
+            const hasTargetConnection = edges.some((edge) => edge.source === node.id)
+            return {
                 id: node.id,
-                label: node.data.name,
-                hasSourceConnection,
-                hasTargetConnection
-            },
-            sourcePosition: Position.Right,
-            targetPosition: Position.Left
-        }
-    })
-    return nodes || []
-}
+                type: 'custom',
+                position: {x: node.position.x, y: node.position.y},
+                data: { 
+                    id: node.id,
+                    label: node.data.name,
+                    hasSourceConnection,
+                    hasTargetConnection
+                },
+                sourcePosition: Position.Right,
+                targetPosition: Position.Left
+            }
+        })
+        return nodes || []
+    }
+)
 
-export const selectBlueprintEdges = (state: RootState) => {
-    const edges = state.blueprint.data?.edges.map((edge) => {
-        return {
-            id: `${edge.source}-${edge.target}`,
-            source: edge.source,
-            target: edge.target
-        }
-    })
-    return edges || []
-}
+export const selectBlueprintEdges = createSelector(
+    [selectBlueprintData],
+    (data: BlueprintData | null) => {
+        const edges = data?.edges || []
+        return edges.map((edge) => {
+            return {
+                id: `${edge.source}-${edge.target}`,
+                source: edge.source,
+                target: edge.target
+            }
+        })
+    }
+)
 
 const blueprintSlice = createSlice({
     name: 'blueprint',
