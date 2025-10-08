@@ -1,20 +1,21 @@
-import { useSelector } from 'react-redux'
-import { selectBlueprintData, selectPrefillOptionGroups, selectSelectedNode } from '../../store/slices/blueprintSlice'
+import { useDispatch, useSelector } from 'react-redux'
+import { selectPrefillOptionGroups, selectSelectedNode } from '../../store/slices/blueprintSlice'
 import styles from './PrefillMappingEditor.module.css'
-import type { Edge } from '../../store/types'
 import { SimpleTreeView } from '@mui/x-tree-view/SimpleTreeView';
 import { TreeItem } from '@mui/x-tree-view/TreeItem';
 import { Box, Button } from '@mui/material';
-import { useMemo, useState } from 'react';
-import { blue } from '@mui/material/colors';
+import { useState } from 'react';
+import type { AppDispatch } from '../../store';
+import { addPrefillMapping } from '../../store/slices/prefillMappingSlice';
 
 
-function generateLeafId(nodeId: string, fieldKey: string) {
-    return `${nodeId}:${fieldKey}`
+function generateLeafId(parentId: string, fieldKey: string) {
+    return `${parentId}:${fieldKey}`
 }
 
 export function PrefillMappingEditor({ selectedFieldKey, onCancel }: { selectedFieldKey: string, onCancel: () => void }) {
 
+    const dispatch = useDispatch<AppDispatch>()
     const [selectedTreeItem, setSelectedTreeItem] = useState<string | null>(null)
 
     // get a grouping of all the possible prefill mappings via the DAG
@@ -53,17 +54,59 @@ export function PrefillMappingEditor({ selectedFieldKey, onCancel }: { selectedF
         })
     )
 
+    const savePrefillMapping = () => {
+        if (!selectedTreeItem || !selectedNode) {
+            return
+        }
+        const selectedOptionGroup = prefillOptionGroups.find(optionGroup => optionGroup?.parentId === selectedTreeItem?.split(':')[0])
+        if (!selectedOptionGroup) {
+            return
+        }
+
+        const sourceFieldKey = selectedTreeItem?.split(':')[1]
+
+        switch (selectedOptionGroup.type) {
+            case 'global':
+                dispatch(addPrefillMapping({
+                    source: {
+                        type: 'global',
+                        name: 'Global',
+                        fieldKey: sourceFieldKey
+                    },
+                    targetNodeId: selectedNode.id,
+                    targetFieldKey: selectedFieldKey
+                }))
+                break
+            case 'form_field':
+                dispatch(addPrefillMapping({
+                    source: {
+                        type: 'form_field',
+                        nodeId: selectedOptionGroup.parentId,
+                        name: selectedOptionGroup.parentName,
+                        fieldKey: sourceFieldKey
+                    },
+                    targetNodeId: selectedNode.id,
+                    targetFieldKey: selectedFieldKey
+                }))
+                break
+            default:
+                break
+        }
+
+        onCancel()
+    }
+
     // it might be better to use a different method to get the target name
     // tree view selection only gives us the leaf id, not the option group id
     const selectedOptionGroup = prefillOptionGroups.find(optionGroup => optionGroup?.parentId === selectedTreeItem?.split(':')[0])
-    const targetName = selectedTreeItem ? `${selectedOptionGroup?.parentName}.${selectedTreeItem.split(':')[1]}` : '?'
+    const sourceName = selectedTreeItem ? `${selectedOptionGroup?.parentName}.${selectedTreeItem.split(':')[1]}` : '?'
 
     return (
         <div className={styles.prefillMappingEditor}>
             <div className={styles.content}>
                 <div className={styles.header}>
                     <h1>Select a Prefill Mapping</h1>
-                    <h3>{formName}.{fieldKey} &rarr; {targetName}</h3>
+                    <h3>{formName}.{fieldKey}: {sourceName} </h3>
                 </div>
                 
                 <Box className={styles.treeContainer}>
@@ -84,7 +127,7 @@ export function PrefillMappingEditor({ selectedFieldKey, onCancel }: { selectedF
 
             <div className={styles.actionMenu}>
                 <Button variant="outlined" color="primary" onClick={onCancel}>Cancel</Button>
-                <Button variant="contained" color="primary" disabled={!selectedTreeItem}>Save</Button>
+                <Button variant="contained" color="primary" disabled={!selectedTreeItem} onClick={savePrefillMapping}>Save</Button>
             </div>
         </div>
     )

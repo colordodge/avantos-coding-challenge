@@ -5,23 +5,24 @@ import type { RootState } from ".."
 export type DataSource = FormFieldSource | GlobalDataSource
 
 export interface FormFieldSource {
-    type: 'form_field',
-    formId: string
+    type: 'form_field'
+    nodeId: string
+    name: string
     fieldKey: string
 }
 
 export interface GlobalDataSource {
-    type: 'global',
-    propertyKey: string
+    type: 'global'
+    name: string
+    fieldKey: string
 }
 
 
 export interface PrefillMapping {
     source: DataSource
-    targetFormId: string
+    targetNodeId: string
     targetFieldKey: string
 }
-
 
 
 export interface PrefillMappingState {

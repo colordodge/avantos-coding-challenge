@@ -139,7 +139,7 @@ export const selectPrefillOptionGroups = createSelector(
                 return null
             }
             return {
-                type: 'form',
+                type: 'form_field',
                 parentId: node.id,
                 parentName: node.data.name,
                 fieldKeys: Object.keys(form.field_schema.properties)
