@@ -1,11 +1,25 @@
 import { createSlice, type PayloadAction } from "@reduxjs/toolkit"
 import type { RootState } from ".."
 
+
+export type DataSource = FormFieldSource | GlobalDataSource
+
+export interface FormFieldSource {
+    type: 'form_field',
+    formId: string
+    fieldKey: string
+}
+
+export interface GlobalDataSource {
+    type: 'global',
+    propertyKey: string
+}
+
+
 export interface PrefillMapping {
-    sourceFormId: string
-    sourceFieldId: string
+    source: DataSource
     targetFormId: string
-    targetFieldId: string
+    targetFieldKey: string
 }
 
 export interface PrefillMappingState {
