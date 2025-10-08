@@ -3,6 +3,7 @@ import { PrefillMappingView } from './PrefillMappingView'
 import { PrefillMappingEditor } from './PrefillMappingEditor'
 import { useState } from 'react'
 
+
 type FormMode = 'view' | 'edit'
 
 export function FormDetails() {
@@ -14,14 +15,19 @@ export function FormDetails() {
         setFormMode('edit')
         setSelectedField(field)
     }
+
+    const handleCancel = () => {
+        setFormMode('view')
+        setSelectedField(null)
+    }
     
     return (
         <div className={styles.formDetails}>
            { formMode === 'view' ? (
             <PrefillMappingView handleFieldClick={handleFieldClick} />
-           ) : (
-            <PrefillMappingEditor />
-           )
+           ) : selectedField ? (
+            <PrefillMappingEditor selectedFieldKey={selectedField} onCancel={handleCancel} />
+           ) : null
            }
         </div>
     )

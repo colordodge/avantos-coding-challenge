@@ -91,6 +91,14 @@ export interface DynamicFieldConfig {
     }
 }
 
+// Prefill Option Group
+
+export interface PrefillOptionGroup {
+    type: string
+    parentId: string
+    parentName: string
+    fieldKeys: string[]
+}
 
 
 

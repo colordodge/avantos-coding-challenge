@@ -1,7 +1,24 @@
 import { createSlice, createAsyncThunk, type PayloadAction, createSelector } from '@reduxjs/toolkit'
-import type {  BlueprintData, Node } from '../types'
+import type {  BlueprintData, Edge, Node, PrefillOptionGroup } from '../types'
 import type { RootState } from '../index'
 import { Position } from '@xyflow/react'
+
+function getAncestorIds(nodeId: string, edges: Edge[]): string[] {
+    // Find ALL edges that point to this node (not just the first one)
+    const parentEdges = edges.filter(edge => edge.target === nodeId)
+    const parentNodeIds = parentEdges.map(edge => edge.source)
+    
+    if (parentNodeIds.length === 0) {
+        return []
+    }
+    
+    // Recursively get ancestors for each parent and flatten the results
+    const allAncestors = parentNodeIds.flatMap(parentId => 
+        [parentId, ...getAncestorIds(parentId, edges)]
+    )
+    
+    return allAncestors
+}
 
 export interface BlueprintState {
     data: BlueprintData | null
@@ -9,6 +26,7 @@ export interface BlueprintState {
     loading: boolean
     error: string | null
 }
+
 
 const initialState: BlueprintState = {
     data: null,
@@ -87,6 +105,48 @@ export const selectSelectedForm = createSelector(
         const selectedFormId = selectedNode?.data.component_id
         const selectedForm = data?.forms.find((form) => form.id === selectedFormId)
         return selectedForm
+    }
+)
+
+export const selectPrefillOptionGroups = createSelector(
+    [selectBlueprintData, selectSelectedNode],
+    (data: BlueprintData | null, selectedNode: Node | null) => {
+
+        if (!data || !selectedNode) {
+            return []
+        }
+
+        // global options
+        const globalGroups: PrefillOptionGroup[] = [
+            {
+                type: 'global',
+                parentId: 'global',
+                parentName: 'Global',
+                fieldKeys: ['test_data', 'test_data2', 'test_data3']
+            }
+        ]
+
+        // form options
+        // get a list of all the nodes that are above the selected node
+        var ancestorIds = getAncestorIds(selectedNode.id || '', data.edges)
+        // remove duplicates from ancestorIds
+        ancestorIds = [...new Set(ancestorIds)]
+        const ancestorNodes = data.nodes.filter(node => ancestorIds.includes(node.id))
+
+        const formGroups = ancestorNodes.map(node => {
+            const form = data.forms.find(form => form.id === node.data.component_id)
+            if (!form) {
+                return null
+            }
+            return {
+                type: 'form',
+                parentId: node.id,
+                parentName: node.data.name,
+                fieldKeys: Object.keys(form.field_schema.properties)
+            }
+        })
+
+        return [...globalGroups, ...formGroups]
     }
 )
 
