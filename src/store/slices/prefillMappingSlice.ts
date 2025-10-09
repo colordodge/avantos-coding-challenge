@@ -77,6 +77,65 @@ export const selectAvailableDataSourceMappings = createSelector(
     }
 )
 
+// Grouped selector for UI consumption: groups and fast leaf lookup
+export interface DataSourceLeaf {
+    leafId: string
+    label: string
+    source: DataSource
+}
+
+export interface DataSourceGroup {
+    parentId: string
+    parentName: string
+    children: DataSourceLeaf[]
+}
+
+export interface GroupedAvailableDataSources {
+    groups: DataSourceGroup[]
+    leafIdToSource: Record<string, DataSource>
+}
+
+export const selectGroupedAvailableDataSources = createSelector(
+    [selectAvailableDataSourceMappings],
+    (sources: DataSource[]): GroupedAvailableDataSources => {
+        const parentIdToGroup: Map<string, { parentName: string, children: DataSourceLeaf[] }> = new Map()
+        const leafIdToSource: Record<string, DataSource> = {}
+
+        sources.forEach((src) => {
+            const parentId = src.id
+            const parentName = src.name
+            const leafId = `${parentId}:${src.fieldKey}`
+
+            // map for O(1) lookup
+            leafIdToSource[leafId] = src
+
+            // group aggregation
+            const group = parentIdToGroup.get(parentId)
+            const child: DataSourceLeaf = {
+                leafId,
+                label: src.fieldKey,
+                source: src
+            }
+            if (!group) {
+                parentIdToGroup.set(parentId, { parentName, children: [child] })
+            } else {
+                group.children.push(child)
+            }
+        })
+
+        // stable ordering for predictable rendering
+        const groups: DataSourceGroup[] = Array.from(parentIdToGroup.entries())
+            .map(([parentId, { parentName, children }]) => ({
+                parentId,
+                parentName,
+                children: children.sort((a, b) => a.label.localeCompare(b.label))
+            }))
+            .sort((a, b) => a.parentName.localeCompare(b.parentName))
+
+        return { groups, leafIdToSource }
+    }
+)
+
 const prefillMappingSlice = createSlice({
     name: 'prefillMapping',
     initialState,

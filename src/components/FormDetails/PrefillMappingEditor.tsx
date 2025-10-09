@@ -6,7 +6,7 @@ import { TreeItem } from '@mui/x-tree-view/TreeItem';
 import { Box, Button } from '@mui/material';
 import { useState } from 'react';
 import type { AppDispatch } from '../../store';
-import { addPrefillMapping, selectPrefillMappings, selectAvailableDataSourceMappings } from '../../store/slices/prefillMappingSlice';
+import { addPrefillMapping, selectPrefillMappings, selectGroupedAvailableDataSources } from '../../store/slices/prefillMappingSlice';
 
 
 function generateLeafId(parentId: string, fieldKey: string) {
@@ -19,7 +19,7 @@ export function PrefillMappingEditor({ selectedFieldKey, onCancel }: { selectedF
 
     // get available data sources for prefill via the DAG
     const selectedNode = useSelector(selectSelectedNode)
-    const availableSources = useSelector(selectAvailableDataSourceMappings)
+    const groupedSources = useSelector(selectGroupedAvailableDataSources)
     const prefillMappings = useSelector(selectPrefillMappings)
 
     // Compute initial state with a lazy initializer function
@@ -45,41 +45,24 @@ export function PrefillMappingEditor({ selectedFieldKey, onCancel }: { selectedF
     const formName = selectedNode?.data.name ?? 'Form'
     const fieldKey = selectedFieldKey
 
-    // Build a quick map from leafId to DataSource
-    const leafIdToSource = new Map<string, { id: string, name: string, fieldKey: string, type: 'form_field' | 'global' }>()
-
-    // Group sources by their parent id so we can render tree groups
-    const parentIdToGroup = new Map<string, { name: string, fieldKeys: string[] }>()
-    availableSources.forEach((src) => {
-        const group = parentIdToGroup.get(src.id)
-        if (!group) {
-            parentIdToGroup.set(src.id, { name: src.name, fieldKeys: [src.fieldKey] })
-        } else {
-            group.fieldKeys.push(src.fieldKey)
-        }
-        const leafId = generateLeafId(src.id, src.fieldKey)
-        leafIdToSource.set(leafId, src)
-    })
-
-    const treeItems = Array.from(parentIdToGroup.entries()).map(([parentId, group]) => {
-        const childItems = group.fieldKeys.map((key) => {
-            const id = generateLeafId(parentId, key)
-            return <TreeItem key={id} itemId={id} label={key} />
-        })
+    const treeItems = groupedSources.groups.map((group) => {
+        const childItems = group.children.map((child) => (
+            <TreeItem key={child.leafId} itemId={child.leafId} label={child.label} />
+        ))
         return (
-            <TreeItem key={parentId} itemId={parentId} label={group.name}>
+            <TreeItem key={group.parentId} itemId={group.parentId} label={group.parentName}>
                 {childItems}
             </TreeItem>
         )
     })
 
     // get leaf ids so we can check that a leaf has been selected
-    const leafIds = new Set<string>(Array.from(leafIdToSource.keys()))
+    const leafIds = new Set<string>(Object.keys(groupedSources.leafIdToSource))
 
     const savePrefillMapping = () => {
         if (!selectedTreeItem || !selectedNode) { return }
 
-        const selectedSource = leafIdToSource.get(selectedTreeItem)
+        const selectedSource = groupedSources.leafIdToSource[selectedTreeItem]
         if (!selectedSource) { return }
 
         dispatch(addPrefillMapping({
@@ -93,7 +76,7 @@ export function PrefillMappingEditor({ selectedFieldKey, onCancel }: { selectedF
 
     // it might be better to use a different method to get the target name
     // tree view selection only gives us the leaf id, not the option group id
-    const selectedSourceForName = selectedTreeItem ? leafIdToSource.get(selectedTreeItem) : undefined
+    const selectedSourceForName = selectedTreeItem ? groupedSources.leafIdToSource[selectedTreeItem] : undefined
     const sourceName = selectedSourceForName ? `${selectedSourceForName.name}.${selectedSourceForName.fieldKey}` : '?'
 
     return (
