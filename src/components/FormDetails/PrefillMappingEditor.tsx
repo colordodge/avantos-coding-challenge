@@ -1,12 +1,12 @@
 import { useDispatch, useSelector } from 'react-redux'
-import { selectPrefillOptionGroups, selectSelectedNode } from '../../store/slices/blueprintSlice'
+import { selectSelectedNode } from '../../store/slices/blueprintSlice'
 import styles from './PrefillMappingEditor.module.css'
 import { SimpleTreeView } from '@mui/x-tree-view/SimpleTreeView';
 import { TreeItem } from '@mui/x-tree-view/TreeItem';
 import { Box, Button } from '@mui/material';
 import { useState } from 'react';
 import type { AppDispatch } from '../../store';
-import { addPrefillMapping, selectPrefillMappings } from '../../store/slices/prefillMappingSlice';
+import { addPrefillMapping, selectPrefillMappings, selectPrefillOptionGroups } from '../../store/slices/prefillMappingSlice';
 
 
 function generateLeafId(parentId: string, fieldKey: string) {
