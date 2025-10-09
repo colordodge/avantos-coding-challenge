@@ -54,9 +54,7 @@ export function PrefillMappingEditor({ selectedFieldKey, onCancel }: { selectedF
 
 
     const treeItems = prefillOptionGroups.map(optionGroup => {
-        if (!optionGroup) {
-            return null
-        }
+        if (!optionGroup) { return null }
     
        const childItems = optionGroup.fieldKeys.map(key => {
             const id = generateLeafId(optionGroup.parentId, key)
@@ -74,21 +72,17 @@ export function PrefillMappingEditor({ selectedFieldKey, onCancel }: { selectedF
     // get leaf ids so we can check that a leaf has been selected
     const leafIds = new Set<string>(
         prefillOptionGroups.flatMap(optionGroup => {
-            if (!optionGroup) {
-                return []
-            }
+            if (!optionGroup) { return [] }
             return optionGroup.fieldKeys.map(key => generateLeafId(optionGroup.parentId, key))
         })
     )
 
     const savePrefillMapping = () => {
-        if (!selectedTreeItem || !selectedNode) {
-            return
-        }
+        if (!selectedTreeItem || !selectedNode) { return }
+
         const selectedOptionGroup = prefillOptionGroups.find(optionGroup => optionGroup?.parentId === selectedTreeItem?.split(':')[0])
-        if (!selectedOptionGroup) {
-            return
-        }
+        
+        if (!selectedOptionGroup) { return }
 
         const sourceFieldKey = selectedTreeItem?.split(':')[1]
 
