@@ -48,10 +48,8 @@ export function PrefillMappingEditor({ selectedFieldKey, onCancel }: { selectedF
         return selectedTreeItem ? [selectedTreeItem.split(':')[0]] : []
     })
     
-
     const formName = selectedNode?.data.name ?? 'Form'
     const fieldKey = selectedFieldKey
-
 
     const treeItems = prefillOptionGroups.map(optionGroup => {
         if (!optionGroup) { return null }
@@ -81,7 +79,7 @@ export function PrefillMappingEditor({ selectedFieldKey, onCancel }: { selectedF
         if (!selectedTreeItem || !selectedNode) { return }
 
         const selectedOptionGroup = prefillOptionGroups.find(optionGroup => optionGroup?.parentId === selectedTreeItem?.split(':')[0])
-        
+
         if (!selectedOptionGroup) { return }
 
         const sourceFieldKey = selectedTreeItem?.split(':')[1]
@@ -127,7 +125,7 @@ export function PrefillMappingEditor({ selectedFieldKey, onCancel }: { selectedF
             <div className={styles.content}>
                 <div className={styles.header}>
                     <h1>Select a Prefill Mapping</h1>
-                    <div className={styles.mappingPreview}>{formName}.{fieldKey}: {sourceName} </div>
+                    <div className={styles.mappingPreview}>{formName}.{fieldKey} : {sourceName} </div>
                 </div>
                 
                 <Box className={styles.treeContainer}>

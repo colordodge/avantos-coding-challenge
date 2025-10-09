@@ -2,9 +2,11 @@ import { useSelector, useDispatch } from 'react-redux'
 import styles from './PrefillMappingView.module.css'
 import { selectSelectedForm, selectSelectedNode } from '../../store/slices/blueprintSlice'
 import type { Form } from '../../store/types'
-import { removePrefillMapping, selectPrefillMappings } from '../../store/slices/prefillMappingSlice'
+import { clearRecentlyAddedMapping, removePrefillMapping, selectPrefillMappings, selectRecentlyAddedMapping } from '../../store/slices/prefillMappingSlice'
 import ClearIcon from '@mui/icons-material/Clear'
 import { Button } from '@mui/material'
+import { useEffect } from 'react'
+import { motion } from 'framer-motion'
 
 
 function getPropertyKeys(form: Form | undefined | null): string[] {
@@ -22,6 +24,18 @@ export function PrefillMappingView({ handleFieldClick, onClose }: { handleFieldC
     const selectedNode = useSelector(selectSelectedNode)
     const formName = selectedNode?.data.name ?? 'Form'
     const prefillMappings = useSelector(selectPrefillMappings)
+    const recentlyAddedMapping = useSelector(selectRecentlyAddedMapping)
+
+    // Clear the recently added mapping after animation completes
+    useEffect(() => {
+        if (recentlyAddedMapping) {
+            const timer = setTimeout(() => {
+                dispatch(clearRecentlyAddedMapping())
+            }, 1500) // Match animation duration
+            
+            return () => clearTimeout(timer)
+        }
+    }, [recentlyAddedMapping, dispatch])
 
     const properties = propertyKeys.map((key) => {
 
@@ -35,8 +49,12 @@ export function PrefillMappingView({ handleFieldClick, onClose }: { handleFieldC
         // check to see if the form node + field key is in the prefill mappings
         const prefillMapping = prefillMappings.find(mapping => mapping.targetNodeId === selectedNode?.id && mapping.targetFieldKey === key)
 
+        // Check if this is the recently added mapping
+        const isRecentlyAdded = recentlyAddedMapping?.targetNodeId === selectedNode?.id && 
+                               recentlyAddedMapping?.targetFieldKey === key
+
         const stringContent = prefillMapping ? 
-        `${key}: ${prefillMapping.source.name}.${prefillMapping.source.fieldKey}` 
+        `${key} : ${prefillMapping.source.name}.${prefillMapping.source.fieldKey}` 
         : `${key}`
 
         const innerContent = prefillMapping ? 
@@ -46,8 +64,32 @@ export function PrefillMappingView({ handleFieldClick, onClose }: { handleFieldC
             </div>) : 
         (<div> {stringContent} </div>)
 
+        // Use motion.div with conditional animation for recently added mapping
+        const PropertyWrapper = isRecentlyAdded ? motion.div : 'div'
+        
+        const animationProps = isRecentlyAdded ? {
+            initial: { 
+                backgroundColor: 'var(--primary-main)',
+                borderColor: 'var(--primary-main)',
+            },
+            animate: { 
+                backgroundColor: '#fff', 
+                borderColor: '#ccc',
+            },
+            transition: { 
+                duration: 1.5,
+            }
+        } : {}
+
         return (
-            <div key={key} className={styles.property} onClick={() => handleFieldClick(key)}>{innerContent}</div>
+            <PropertyWrapper 
+                key={key} 
+                className={styles.property} 
+                onClick={() => handleFieldClick(key)}
+                {...animationProps}
+            >
+                {innerContent}
+            </PropertyWrapper>
         )
     })
     

@@ -1,7 +1,7 @@
 .prefillMappingEditor {
     display: flex;
     flex-direction: column;
-    gap: 10px;
+    gap: 20px;
     height: 100%;
     overflow: hidden;
     justify-content: space-between;
@@ -19,15 +19,15 @@
 .header {
     display: flex;
     flex-direction: column;
-    gap: 12px;
+    gap: 20px;
     flex: 0 0 auto;
 }
 
 .mappingPreview {
     padding: 5px 5px 5px 10px;
-    border: 1px solid #ccc;
+    border: 1px solid var(--primary-main);
     border-radius: 10px;
-    background-color: #e3e3e3;
+    background-color: #ffffff;
     font-size: 14px;
 }
 
@@ -35,6 +35,8 @@
     flex: 1 1 auto;
     overflow-y: scroll;
     min-height: 0px;
+    background-color: #ffffff;
+    border-radius: 10px;
 }
 
 .actionMenu {

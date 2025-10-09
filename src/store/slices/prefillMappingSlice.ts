@@ -27,13 +27,16 @@ export interface PrefillMapping {
 
 export interface PrefillMappingState {
     prefillMappings: PrefillMapping[]
+    recentlyAddedMapping: PrefillMapping | null
 }
 
 const initialState: PrefillMappingState = {
-    prefillMappings: []
+    prefillMappings: [],
+    recentlyAddedMapping: null
 }
 
 export const selectPrefillMappings = (state: RootState) => state.prefillMapping.prefillMappings
+export const selectRecentlyAddedMapping = (state: RootState) => state.prefillMapping.recentlyAddedMapping
 
 
 const prefillMappingSlice = createSlice({
@@ -42,6 +45,7 @@ const prefillMappingSlice = createSlice({
     reducers: {
         addPrefillMapping: (state, action: PayloadAction<PrefillMapping>) => {
             state.prefillMappings.push(action.payload)
+            state.recentlyAddedMapping = action.payload
         },
         removePrefillMapping: (state, action: PayloadAction<{targetNodeId: string, targetFieldKey: string}>) => {
             state.prefillMappings = state.prefillMappings.filter(mapping => {
@@ -50,9 +54,12 @@ const prefillMappingSlice = createSlice({
                     mapping.targetFieldKey === action.payload.targetFieldKey
                 return !isTargetMapping
             })
+        },
+        clearRecentlyAddedMapping: (state) => {
+            state.recentlyAddedMapping = null
         }
     }
 })
 
-export const { addPrefillMapping, removePrefillMapping } = prefillMappingSlice.actions
+export const { addPrefillMapping, removePrefillMapping, clearRecentlyAddedMapping } = prefillMappingSlice.actions
 export default prefillMappingSlice.reducer
