@@ -6,7 +6,7 @@ import { TreeItem } from '@mui/x-tree-view/TreeItem';
 import { Box, Button } from '@mui/material';
 import { useState } from 'react';
 import type { AppDispatch } from '../../store';
-import { addPrefillMapping, selectPrefillMappings, selectPrefillOptionGroups } from '../../store/slices/prefillMappingSlice';
+import { addPrefillMapping, selectPrefillMappings, selectAvailableDataSourceMappings } from '../../store/slices/prefillMappingSlice';
 
 
 function generateLeafId(parentId: string, fieldKey: string) {
@@ -17,9 +17,9 @@ export function PrefillMappingEditor({ selectedFieldKey, onCancel }: { selectedF
 
     const dispatch = useDispatch<AppDispatch>()
 
-    // get a grouping of all the possible prefill mappings via the DAG
+    // get available data sources for prefill via the DAG
     const selectedNode = useSelector(selectSelectedNode)
-    const prefillOptionGroups = useSelector(selectPrefillOptionGroups)
+    const availableSources = useSelector(selectAvailableDataSourceMappings)
     const prefillMappings = useSelector(selectPrefillMappings)
 
     // Compute initial state with a lazy initializer function
@@ -45,75 +45,56 @@ export function PrefillMappingEditor({ selectedFieldKey, onCancel }: { selectedF
     const formName = selectedNode?.data.name ?? 'Form'
     const fieldKey = selectedFieldKey
 
-    const treeItems = prefillOptionGroups.map(optionGroup => {
-        if (!optionGroup) { return null }
-    
-       const childItems = optionGroup.fieldKeys.map(key => {
-            const id = generateLeafId(optionGroup.parentId, key)
+    // Build a quick map from leafId to DataSource
+    const leafIdToSource = new Map<string, { id: string, name: string, fieldKey: string, type: 'form_field' | 'global' }>()
+
+    // Group sources by their parent id so we can render tree groups
+    const parentIdToGroup = new Map<string, { name: string, fieldKeys: string[] }>()
+    availableSources.forEach((src) => {
+        const group = parentIdToGroup.get(src.id)
+        if (!group) {
+            parentIdToGroup.set(src.id, { name: src.name, fieldKeys: [src.fieldKey] })
+        } else {
+            group.fieldKeys.push(src.fieldKey)
+        }
+        const leafId = generateLeafId(src.id, src.fieldKey)
+        leafIdToSource.set(leafId, src)
+    })
+
+    const treeItems = Array.from(parentIdToGroup.entries()).map(([parentId, group]) => {
+        const childItems = group.fieldKeys.map((key) => {
+            const id = generateLeafId(parentId, key)
             return <TreeItem key={id} itemId={id} label={key} />
         })
-
-       return (
-        <TreeItem key={optionGroup.parentId} itemId={optionGroup.parentId} label={optionGroup.parentName}>
-            {childItems}
-        </TreeItem>
-       )
-
+        return (
+            <TreeItem key={parentId} itemId={parentId} label={group.name}>
+                {childItems}
+            </TreeItem>
+        )
     })
 
     // get leaf ids so we can check that a leaf has been selected
-    const leafIds = new Set<string>(
-        prefillOptionGroups.flatMap(optionGroup => {
-            if (!optionGroup) { return [] }
-            return optionGroup.fieldKeys.map(key => generateLeafId(optionGroup.parentId, key))
-        })
-    )
+    const leafIds = new Set<string>(Array.from(leafIdToSource.keys()))
 
     const savePrefillMapping = () => {
         if (!selectedTreeItem || !selectedNode) { return }
 
-        const selectedOptionGroup = prefillOptionGroups.find(optionGroup => optionGroup?.parentId === selectedTreeItem?.split(':')[0])
+        const selectedSource = leafIdToSource.get(selectedTreeItem)
+        if (!selectedSource) { return }
 
-        if (!selectedOptionGroup) { return }
-
-        const sourceFieldKey = selectedTreeItem?.split(':')[1]
-
-        switch (selectedOptionGroup.type) {
-            case 'global':
-                dispatch(addPrefillMapping({
-                    source: {
-                        type: 'global',
-                        id: 'global',
-                        name: 'Global',
-                        fieldKey: sourceFieldKey
-                    },
-                    targetNodeId: selectedNode.id,
-                    targetFieldKey: selectedFieldKey
-                }))
-                break
-            case 'form_field':
-                dispatch(addPrefillMapping({
-                    source: {
-                        type: 'form_field',
-                        id: selectedOptionGroup.parentId,
-                        name: selectedOptionGroup.parentName,
-                        fieldKey: sourceFieldKey
-                    },
-                    targetNodeId: selectedNode.id,
-                    targetFieldKey: selectedFieldKey
-                }))
-                break
-            default:
-                break
-        }
+        dispatch(addPrefillMapping({
+            source: selectedSource,
+            targetNodeId: selectedNode.id,
+            targetFieldKey: selectedFieldKey
+        }))
 
         onCancel()
     }
 
     // it might be better to use a different method to get the target name
     // tree view selection only gives us the leaf id, not the option group id
-    const selectedOptionGroup = prefillOptionGroups.find(optionGroup => optionGroup?.parentId === selectedTreeItem?.split(':')[0])
-    const sourceName = selectedTreeItem ? `${selectedOptionGroup?.parentName}.${selectedTreeItem.split(':')[1]}` : '?'
+    const selectedSourceForName = selectedTreeItem ? leafIdToSource.get(selectedTreeItem) : undefined
+    const sourceName = selectedSourceForName ? `${selectedSourceForName.name}.${selectedSourceForName.fieldKey}` : '?'
 
     return (
         <div className={styles.prefillMappingEditor}>
