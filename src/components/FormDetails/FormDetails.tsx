@@ -6,7 +6,7 @@ import { useState } from 'react'
 
 type FormMode = 'view' | 'edit'
 
-export function FormDetails() {
+export function FormDetails({ onClose }: { onClose: () => void }) {
 
     const [formMode, setFormMode] = useState<FormMode>('view')
     const [selectedField, setSelectedField] = useState<string | null>(null)
@@ -24,7 +24,7 @@ export function FormDetails() {
     return (
         <div className={styles.formDetails}>
            { formMode === 'view' ? (
-            <PrefillMappingView handleFieldClick={handleFieldClick} />
+            <PrefillMappingView handleFieldClick={handleFieldClick} onClose={onClose} />
            ) : selectedField ? (
             <PrefillMappingEditor selectedFieldKey={selectedField} onCancel={handleCancel} />
            ) : null

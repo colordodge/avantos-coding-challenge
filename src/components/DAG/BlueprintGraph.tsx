@@ -32,6 +32,10 @@ export function BlueprintGraph() {
     const handlePaneClick = useCallback(() => {
         dispatch(setSelectedNode(null))
     }, [dispatch])
+
+    const handleCloseModal = useCallback(() => {
+        dispatch(setSelectedNode(null))
+    }, [dispatch])
     
 
     useEffect(() => {
@@ -48,7 +52,7 @@ export function BlueprintGraph() {
                         left: '50%',
                         transform: 'translate(-50%, -50%)',
                     }}>
-                    <FormDetails />
+                    <FormDetails onClose={handleCloseModal} />
                 </Box>
             </Modal>}
             <ReactFlow

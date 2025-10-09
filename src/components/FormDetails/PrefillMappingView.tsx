@@ -4,6 +4,7 @@ import { selectSelectedForm, selectSelectedNode } from '../../store/slices/bluep
 import type { Form } from '../../store/types'
 import { removePrefillMapping, selectPrefillMappings } from '../../store/slices/prefillMappingSlice'
 import ClearIcon from '@mui/icons-material/Clear'
+import { Button } from '@mui/material'
 
 
 function getPropertyKeys(form: Form | undefined | null): string[] {
@@ -13,7 +14,7 @@ function getPropertyKeys(form: Form | undefined | null): string[] {
     return Object.keys(form.field_schema.properties)
 }
 
-export function PrefillMappingView({ handleFieldClick }: { handleFieldClick: (field: string) => void }) {
+export function PrefillMappingView({ handleFieldClick, onClose }: { handleFieldClick: (field: string) => void, onClose: () => void }) {
 
     const dispatch = useDispatch()
     const selectedForm = useSelector(selectSelectedForm)
@@ -52,11 +53,21 @@ export function PrefillMappingView({ handleFieldClick }: { handleFieldClick: (fi
     
     return (
         <div className={styles.prefillMappingView}>
-            <h1>{formName}</h1>
-            <h3>Prefill Mapping</h3>
-            <div className={styles.properties}>
-                {properties}
+            <div className={styles.content}>
+                <div className={styles.header}>
+                    <h1>{formName}</h1>
+                    <h3>Prefill Mapping</h3>
+                </div>
+                
+                <div className={styles.properties}>
+                    {properties}
+                </div>
             </div>
+
+            <div className={styles.actionMenu}>
+                <Button variant="contained" color="primary" onClick={onClose}>Done</Button>
+            </div>
+            
         </div>
     )
 }

@@ -6,19 +6,19 @@
     background: rgb(255, 255, 255);
     border: 1px solid #b5b5b5;
     font-size: 12px;
-    border-radius: 5px;
+    border-radius: 10px;
     font-weight: 500;
     cursor: pointer;
 }
 
 .customNode:hover {
-    border: 1px solid rgb(93, 82, 206);
+    border: 1px solid var(--primary-main);
 }
 
 .customNode.selected {
-    border: 1px solid rgb(93, 82, 206);
+    border: 1px solid var(--primary-main);
 }
 
 .nodeIcon {
-    color: rgb(93, 82, 206);
+    color: var(--primary-main);
 }
