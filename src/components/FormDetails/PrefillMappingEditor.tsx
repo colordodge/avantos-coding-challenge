@@ -6,7 +6,8 @@ import { TreeItem } from '@mui/x-tree-view/TreeItem';
 import { Box, Button } from '@mui/material';
 import { useState } from 'react';
 import type { AppDispatch } from '../../store';
-import { addPrefillMapping, selectPrefillMappings, selectGroupedAvailableDataSources } from '../../store/slices/prefillMappingSlice';
+import { addPrefillMapping, selectPrefillMappings } from '../../store/slices/prefillMappingSlice';
+import { selectGroupedAvailableDataSources } from '../../store/selectors/prefillMappingSelectors';
 
 
 function generateLeafId(parentId: string, fieldKey: string) {
