@@ -24,7 +24,7 @@ export function PrefillMappingEditor({ selectedFieldKey, onCancel }: { selectedF
 
     // Compute initial state with a lazy initializer function
     const [selectedTreeItem, setSelectedTreeItem] = useState<string | null>(() => {
-        if (!selectedNode) return null  // Use null, not undefined
+        if (!selectedNode) return null 
     
         // Find existing mapping for this node and field
         const existingMapping = prefillMappings.find(
@@ -32,15 +32,9 @@ export function PrefillMappingEditor({ selectedFieldKey, onCancel }: { selectedF
         )
     
         if (existingMapping) {
-            // Construct the tree item ID based on the source type
-            if (existingMapping.source.type === 'global') {
-                return generateLeafId('global', existingMapping.source.fieldKey)
-            } else {
-                // form_field type
-                return generateLeafId(existingMapping.source.nodeId, existingMapping.source.fieldKey)
-            }
+            return generateLeafId(existingMapping.source.id, existingMapping.source.fieldKey)
         }
-        return null  // Use null, not undefined
+        return null 
     })
 
     // Add state for expanded items - initialize with parent of selected item
@@ -89,6 +83,7 @@ export function PrefillMappingEditor({ selectedFieldKey, onCancel }: { selectedF
                 dispatch(addPrefillMapping({
                     source: {
                         type: 'global',
+                        id: 'global',
                         name: 'Global',
                         fieldKey: sourceFieldKey
                     },
@@ -100,7 +95,7 @@ export function PrefillMappingEditor({ selectedFieldKey, onCancel }: { selectedF
                 dispatch(addPrefillMapping({
                     source: {
                         type: 'form_field',
-                        nodeId: selectedOptionGroup.parentId,
+                        id: selectedOptionGroup.parentId,
                         name: selectedOptionGroup.parentName,
                         fieldKey: sourceFieldKey
                     },

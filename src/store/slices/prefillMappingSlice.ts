@@ -1,25 +1,16 @@
 import { createSelector, createSlice, type PayloadAction } from "@reduxjs/toolkit"
 import type { RootState } from ".."
-import type { BlueprintData, Node, PrefillOptionGroup } from "../types"
+import type { BlueprintData, Node } from "../types"
 import { selectBlueprintData, selectSelectedNode } from "./blueprintSlice"
 import { getAncestorIds } from "../utils/graphUtils"
 
 
-export type DataSource = FormFieldSource | GlobalDataSource
-
-export interface FormFieldSource {
-    type: 'form_field'
-    nodeId: string
+export interface DataSource {
+    type: 'form_field' | 'global'
+    id: string
     name: string
     fieldKey: string
 }
-
-export interface GlobalDataSource {
-    type: 'global'
-    name: string
-    fieldKey: string
-}
-
 
 export interface PrefillMapping {
     source: DataSource
@@ -27,6 +18,12 @@ export interface PrefillMapping {
     targetFieldKey: string
 }
 
+export interface PrefillOptionGroup {
+    type: 'form_field' | 'global'
+    parentId: string
+    parentName: string
+    fieldKeys: string[]
+}
 
 export interface PrefillMappingState {
     prefillMappings: PrefillMapping[]
@@ -41,6 +38,7 @@ const initialState: PrefillMappingState = {
 export const selectPrefillMappings = (state: RootState) => state.prefillMapping.prefillMappings
 export const selectRecentlyAddedMapping = (state: RootState) => state.prefillMapping.recentlyAddedMapping
 
+// return prefill options for the UI editor
 export const selectPrefillOptionGroups = createSelector(
     [selectBlueprintData, selectSelectedNode],
     (data: BlueprintData | null, selectedNode: Node | null) => {
