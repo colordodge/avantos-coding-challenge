@@ -1,12 +1,13 @@
 import { useSelector, useDispatch } from 'react-redux'
 import styles from './PrefillMappingView.module.css'
-import { selectSelectedForm, selectSelectedNode } from '../../store/slices/blueprintSlice'
+import { selectSelectedNode } from '../../store/slices/blueprintSlice'
 import type { Form } from '../../store/types'
 import { clearRecentlyAddedMapping, removePrefillMapping, selectPrefillMappings, selectRecentlyAddedMapping } from '../../store/slices/prefillMappingSlice'
 import ClearIcon from '@mui/icons-material/Clear'
 import { Button } from '@mui/material'
 import { useEffect } from 'react'
 import { motion } from 'framer-motion'
+import { selectSelectedForm } from '../../store/selectors/blueprintSelectors'
 
 
 function getPropertyKeys(form: Form | undefined | null): string[] {

@@ -1,4 +1,4 @@
-import { selectBlueprintNodes, selectBlueprintEdges, fetchBlueprintData, selectBlueprintData, setSelectedNode, selectSelectedNode } from '../../store/slices/blueprintSlice'
+import {selectBlueprintData, setSelectedNode, selectSelectedNode } from '../../store/slices/blueprintSlice'
 import { useDispatch, useSelector } from 'react-redux'
 import { ReactFlow } from '@xyflow/react'
 import '@xyflow/react/dist/style.css'
@@ -9,6 +9,8 @@ import { CustomNode } from './CustomNode'
 import { Modal } from '@mui/material'
 import { FormDetails } from '../FormDetails/FormDetails'
 import { motion, AnimatePresence } from 'framer-motion'
+import { selectBlueprintEdges, selectBlueprintNodes } from '../../store/selectors/blueprintSelectors'
+import { fetchBlueprintData } from '../../store/utils/fetchBlueprintData'
 
 const nodeTypes = {
     custom: CustomNode,

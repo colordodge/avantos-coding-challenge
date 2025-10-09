@@ -1,7 +1,8 @@
-import { createSlice, createAsyncThunk, type PayloadAction, createSelector } from '@reduxjs/toolkit'
+import { createSlice, type PayloadAction } from '@reduxjs/toolkit'
 import type {  BlueprintData, Node } from '../types'
 import type { RootState } from '../index'
-import { Position } from '@xyflow/react'
+
+import { fetchBlueprintData } from '../utils/fetchBlueprintData'
 
 
 
@@ -20,78 +21,11 @@ const initialState: BlueprintState = {
     error: null
 }
 
-export const fetchBlueprintData = createAsyncThunk(
-    'blueprint/fetchBlueprintData',
-    async (_, { rejectWithValue }) => {
-        try {
-            const API_URL = 'http://localhost:3000/api/v1/myapp/actions/blueprints/mybp/graph/'
-            const response = await fetch(API_URL)
-
-            if (!response.ok) {
-                throw new Error('HTTP error! status:  ${response.status} ')
-            }
-
-            const data = await response.json()
-            return data
-
-        } catch (error) {
-            return rejectWithValue(error instanceof Error ? error.message : 'An error occurred')
-        }
-    }
-)
-
 export const selectBlueprintData = (state: RootState) => state.blueprint.data
 export const selectBlueprintLoading = (state: RootState) => state.blueprint.loading
 export const selectBlueprintError = (state: RootState) => state.blueprint.error
 export const selectSelectedNode = (state: RootState) => state.blueprint.selectedNode
 
-export const selectBlueprintNodes = createSelector(
-    [selectBlueprintData],
-    (data: BlueprintData | null) => {
-        const edges = data?.edges || []
-        const nodes = data?.nodes.map((node) => {
-            const hasSourceConnection = edges.some((edge) => edge.target === node.id)
-            const hasTargetConnection = edges.some((edge) => edge.source === node.id)
-            return {
-                id: node.id,
-                type: 'custom',
-                position: {x: node.position.x, y: node.position.y},
-                data: { 
-                    id: node.id,
-                    label: node.data.name,
-                    hasSourceConnection,
-                    hasTargetConnection
-                },
-                sourcePosition: Position.Right,
-                targetPosition: Position.Left
-            }
-        })
-        return nodes || []
-    }
-)
-
-export const selectBlueprintEdges = createSelector(
-    [selectBlueprintData],
-    (data: BlueprintData | null) => {
-        const edges = data?.edges || []
-        return edges.map((edge) => {
-            return {
-                id: `${edge.source}-${edge.target}`,
-                source: edge.source,
-                target: edge.target
-            }
-        })
-    }
-)
-
-export const selectSelectedForm = createSelector(
-    [selectBlueprintData, selectSelectedNode],
-    (data: BlueprintData | null, selectedNode: Node | null) => {
-        const selectedFormId = selectedNode?.data.component_id
-        const selectedForm = data?.forms.find((form) => form.id === selectedFormId)
-        return selectedForm
-    }
-)
 
 const blueprintSlice = createSlice({
     name: 'blueprint',
