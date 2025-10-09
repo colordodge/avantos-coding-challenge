@@ -17,6 +17,7 @@
     "@mui/x-tree-view": "^8.13.1",
     "@reduxjs/toolkit": "^2.9.0",
     "@xyflow/react": "^12.8.6",
+    "framer-motion": "^12.23.22",
     "react": "^19.1.1",
     "react-dom": "^19.1.1",
     "react-redux": "^9.2.0"

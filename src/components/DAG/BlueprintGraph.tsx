@@ -8,6 +8,7 @@ import type { AppDispatch } from '../../store'
 import { CustomNode } from './CustomNode'
 import { Box, Modal } from '@mui/material'
 import { FormDetails } from '../FormDetails/FormDetails'
+import { motion, AnimatePresence } from 'framer-motion'
 
 const nodeTypes = {
     custom: CustomNode,
@@ -45,16 +46,31 @@ export function BlueprintGraph() {
     
     return (
         <div className={styles.blueprintGraph}>
-            {selectedNode && <Modal open={true} onClose={() => dispatch(setSelectedNode(null))}>
-                <Box sx={{
-                        position: 'absolute',
-                        top: '50%',
-                        left: '50%',
-                        transform: 'translate(-50%, -50%)',
-                    }}>
-                    <FormDetails onClose={handleCloseModal} />
-                </Box>
-            </Modal>}
+            <AnimatePresence>
+                {selectedNode && (
+                    <Modal 
+                        open={true} 
+                        onClose={() => dispatch(setSelectedNode(null))}
+                        sx={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                        }}
+                    >
+                        <motion.div
+                            initial={{ y: '100vh' }}
+                            animate={{ y: 0 }}
+                            exit={{ y: '100vh' }}
+                            transition={{ 
+                                duration: 0.3, 
+                                ease: 'easeOut'
+                            }}
+                        >
+                            <FormDetails onClose={handleCloseModal} />
+                        </motion.div>
+                    </Modal>
+                )}
+            </AnimatePresence>
             <ReactFlow
                 nodes={nodes}
                 edges={edges}
