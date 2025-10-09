@@ -6,7 +6,7 @@ import styles from './BlueprintGraph.module.css'
 import { useCallback, useEffect } from 'react'
 import type { AppDispatch } from '../../store'
 import { CustomNode } from './CustomNode'
-import { Box, Modal } from '@mui/material'
+import { Modal } from '@mui/material'
 import { FormDetails } from '../FormDetails/FormDetails'
 import { motion, AnimatePresence } from 'framer-motion'
 

@@ -4,7 +4,7 @@ import styles from './PrefillMappingEditor.module.css'
 import { SimpleTreeView } from '@mui/x-tree-view/SimpleTreeView';
 import { TreeItem } from '@mui/x-tree-view/TreeItem';
 import { Box, Button } from '@mui/material';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import type { AppDispatch } from '../../store';
 import { addPrefillMapping, selectPrefillMappings } from '../../store/slices/prefillMappingSlice';
 
@@ -133,14 +133,14 @@ export function PrefillMappingEditor({ selectedFieldKey, onCancel }: { selectedF
             <div className={styles.content}>
                 <div className={styles.header}>
                     <h1>Select a Prefill Mapping</h1>
-                    <h3>{formName}.{fieldKey}: {sourceName} </h3>
+                    <div className={styles.mappingPreview}>{formName}.{fieldKey}: {sourceName} </div>
                 </div>
                 
                 <Box className={styles.treeContainer}>
                     <SimpleTreeView 
                     selectedItems={selectedTreeItem}
                     expandedItems={expandedItems}
-                    onExpandedItemsChange={(_event, itemIds) => {  // Add handler
+                    onExpandedItemsChange={(_event, itemIds) => {
                         setExpandedItems(itemIds)
                     }}
                     onSelectedItemsChange={(_event, itemId) => {

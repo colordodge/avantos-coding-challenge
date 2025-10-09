@@ -2,6 +2,7 @@ import styles from './FormDetails.module.css'
 import { PrefillMappingView } from './PrefillMappingView'
 import { PrefillMappingEditor } from './PrefillMappingEditor'
 import { useState } from 'react'
+import { motion, AnimatePresence } from 'framer-motion'
 
 
 type FormMode = 'view' | 'edit'
@@ -23,12 +24,39 @@ export function FormDetails({ onClose }: { onClose: () => void }) {
     
     return (
         <div className={styles.formDetails}>
-           { formMode === 'view' ? (
-            <PrefillMappingView handleFieldClick={handleFieldClick} onClose={onClose} />
-           ) : selectedField ? (
-            <PrefillMappingEditor selectedFieldKey={selectedField} onCancel={handleCancel} />
-           ) : null
-           }
+            <AnimatePresence>
+                { formMode === 'view' ? (
+                    <motion.div
+                        className={styles.motionContainer}
+                        key='view'
+                        initial={{ x: -500 }}
+                        animate={{ x: 0 }}
+                        exit={{ x: -500 }}
+                        transition={{ 
+                            duration: 0.2, 
+                            ease: 'easeOut'
+                        }}
+                    >
+                        <PrefillMappingView handleFieldClick={handleFieldClick} onClose={onClose} />
+                    </motion.div>
+                    
+                ) : selectedField ? (
+                    <motion.div
+                        className={styles.motionContainer}
+                        key='edit'
+                        initial={{ x: 500 }}
+                        animate={{ x: 0 }}
+                        exit={{ x: 500 }}
+                        transition={{ 
+                            duration: 0.2, 
+                            ease: 'easeOut'
+                        }}
+                    >
+                        <PrefillMappingEditor selectedFieldKey={selectedField} onCancel={handleCancel} />
+                    </motion.div>
+                ) : null
+                }
+            </AnimatePresence>
         </div>
     )
 }
