@@ -43,9 +43,12 @@ const prefillMappingSlice = createSlice({
         addPrefillMapping: (state, action: PayloadAction<PrefillMapping>) => {
             state.prefillMappings.push(action.payload)
         },
+        removePrefillMapping: (state, action: PayloadAction<{targetNodeId: string, targetFieldKey: string}>) => {
+            state.prefillMappings = state.prefillMappings.filter(mapping => mapping.targetNodeId !== action.payload.targetNodeId && mapping.targetFieldKey !== action.payload.targetFieldKey)
+        }
         
     }
 })
 
-export const { addPrefillMapping } = prefillMappingSlice.actions
+export const { addPrefillMapping, removePrefillMapping } = prefillMappingSlice.actions
 export default prefillMappingSlice.reducer

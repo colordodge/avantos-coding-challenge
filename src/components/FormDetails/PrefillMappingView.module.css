@@ -17,3 +17,34 @@
     border-radius: 5px;
     background-color: #f0f0f0;
 }
+
+.keyContainer {
+    display: flex;
+    flex-direction: row;
+    gap: 5px;
+    align-items: center;
+}
+
+.key {
+    flex: 1;
+}
+
+.clearIconContainer {
+    cursor: pointer;
+    background-color: #a8a8a8;
+    width: 20px;
+    height: 20px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.clearIconContainer:hover {
+    background-color: #b42d2d;
+}
+
+.clearIcon {
+    color: #fff;
+    font-size: 10px;
+}

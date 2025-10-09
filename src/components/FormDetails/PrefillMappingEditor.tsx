@@ -4,9 +4,9 @@ import styles from './PrefillMappingEditor.module.css'
 import { SimpleTreeView } from '@mui/x-tree-view/SimpleTreeView';
 import { TreeItem } from '@mui/x-tree-view/TreeItem';
 import { Box, Button } from '@mui/material';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import type { AppDispatch } from '../../store';
-import { addPrefillMapping } from '../../store/slices/prefillMappingSlice';
+import { addPrefillMapping, selectPrefillMappings } from '../../store/slices/prefillMappingSlice';
 
 
 function generateLeafId(parentId: string, fieldKey: string) {
@@ -16,11 +16,38 @@ function generateLeafId(parentId: string, fieldKey: string) {
 export function PrefillMappingEditor({ selectedFieldKey, onCancel }: { selectedFieldKey: string, onCancel: () => void }) {
 
     const dispatch = useDispatch<AppDispatch>()
-    const [selectedTreeItem, setSelectedTreeItem] = useState<string | null>(null)
 
     // get a grouping of all the possible prefill mappings via the DAG
     const selectedNode = useSelector(selectSelectedNode)
     const prefillOptionGroups = useSelector(selectPrefillOptionGroups)
+    const prefillMappings = useSelector(selectPrefillMappings)
+
+    // Compute initial state with a lazy initializer function
+    const [selectedTreeItem, setSelectedTreeItem] = useState<string | null>(() => {
+        if (!selectedNode) return null  // Use null, not undefined
+    
+        // Find existing mapping for this node and field
+        const existingMapping = prefillMappings.find(
+            mapping => mapping.targetNodeId === selectedNode.id && mapping.targetFieldKey === selectedFieldKey
+        )
+    
+        if (existingMapping) {
+            // Construct the tree item ID based on the source type
+            if (existingMapping.source.type === 'global') {
+                return generateLeafId('global', existingMapping.source.fieldKey)
+            } else {
+                // form_field type
+                return generateLeafId(existingMapping.source.nodeId, existingMapping.source.fieldKey)
+            }
+        }
+        return null  // Use null, not undefined
+    })
+
+    // Add state for expanded items - initialize with parent of selected item
+    const [expandedItems, setExpandedItems] = useState<string[]>(() => {
+        return selectedTreeItem ? [selectedTreeItem.split(':')[0]] : []
+    })
+    
 
     const formName = selectedNode?.data.name ?? 'Form'
     const fieldKey = selectedFieldKey
@@ -110,7 +137,13 @@ export function PrefillMappingEditor({ selectedFieldKey, onCancel }: { selectedF
                 </div>
                 
                 <Box className={styles.treeContainer}>
-                    <SimpleTreeView onSelectedItemsChange={(_event, itemId) => {
+                    <SimpleTreeView 
+                    selectedItems={selectedTreeItem}
+                    expandedItems={expandedItems}
+                    onExpandedItemsChange={(_event, itemIds) => {  // Add handler
+                        setExpandedItems(itemIds)
+                    }}
+                    onSelectedItemsChange={(_event, itemId) => {
                         if (typeof itemId === 'string') {
                             if (leafIds.has(itemId)) {
                                 setSelectedTreeItem(itemId)
