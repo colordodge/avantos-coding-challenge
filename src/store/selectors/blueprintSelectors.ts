@@ -8,7 +8,7 @@ export const selectBlueprintNodes = createSelector(
     [selectBlueprintData],
     (data: BlueprintData | null) => {
         const edges = data?.edges || []
-        const nodes = data?.nodes.map((node) => {
+        const nodes = data?.nodes?.map((node) => {
             const hasSourceConnection = edges.some((edge) => edge.target === node.id)
             const hasTargetConnection = edges.some((edge) => edge.source === node.id)
             return {
