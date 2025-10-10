@@ -1,4 +1,4 @@
-/// <reference types="vitest" />
+  /// <reference types="vitest" />
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 
@@ -10,7 +10,11 @@ export default defineConfig({
     // Use 'happy-dom' which is faster and more stable than jsdom
     environment: 'happy-dom',
     setupFiles: './src/test/setup.ts',
-    css: true,
+    css: {
+      modules: {
+        classNameStrategy: 'non-scoped', // Use original class names in tests
+      },
+    },
     coverage: {
       provider: 'v8',
       reporter: ['text', 'json', 'html'],
